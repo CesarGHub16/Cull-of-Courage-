@@ -76,8 +76,8 @@ def generate_dungeon(
         room_width = random.randint(room_min_size, room_max_size)
         room_height = random.randint(room_min_size, room_max_size)
 
-        x = random.randint(0, dungeon.width - room_width - 1)
-        y = random.randint(0, dungeon.height - room_height - 1)
+        x = random.randint(0, dungeon.width - room_width - 3)
+        y = random.randint(0, dungeon.height - room_height - 3)
 
         # "Room" class makes rectangles easier to work with
         new_room = RegularRoom(x, y, room_width, room_height)
