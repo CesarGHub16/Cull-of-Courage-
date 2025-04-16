@@ -6,9 +6,8 @@ import tile_type
 class GameMap:
     def __init__(self, width: int, height: int):
         self.width, self.height = width, height
-        self.tiles = np.full((width, height), fill_value=tile_type.floor, order="F")
+        self.tiles = np.full((width, height), fill_value=tile_type.wall, order="F")
 
-        self.tiles[30:34, 22] = tile_type.wall
 
     def in_bounds(self, x: int, y: int) -> bool:
         """Return TRUE if x and y are inside the bounds of the map."""
