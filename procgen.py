@@ -47,10 +47,10 @@ def hallway(
     x2, y2 = end
     if random.random() < 0.5: #50% Chance.
         # Move horizontally, then vertically.
-        corner_x, corner_y = x1, y1
+        corner_x, corner_y = x1, y2
     else:
         # Move horizontally, then vertically.
-        corner_x, corner_y = x2, y2
+        corner_x, corner_y = x2, y1
 
     # generate the coordinates for this tunnel
     for x, y in tcod.los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
@@ -77,14 +77,16 @@ def generate_dungeon(
         room_height = random.randint(room_min_size, room_max_size)
 
         x = random.randint(0, dungeon.width - room_width - 1)
-        y = random.randint(0, dungeon.height - room_width - 1)
+        y = random.randint(0, dungeon.height - room_height - 1)
 
         # "Room" class makes rectangles easier to work with
         new_room = RegularRoom(x, y, room_width, room_height)
 
         # Run through other rooms and see if they intersect with one another
         if any(new_room.intersects(other_room) for other_room in rooms):
-            continue # This room doesn't intersect then this room is valid
+            continue
+        # This room doesn't intersect then this room is valid
+
 
         # Dug out the room inner area
         dungeon.tiles[new_room.inner] = tile_type.floor
@@ -97,8 +99,8 @@ def generate_dungeon(
             for x, y in hallway(rooms[-1].center, new_room.center):
                 dungeon.tiles[x, y] = tile_type.floor
 
-            # Finally, append the new room to the list
-            rooms.append(new_room)
+        # Finally, append the new room to the list
+        rooms.append(new_room)
 
 
     return dungeon
