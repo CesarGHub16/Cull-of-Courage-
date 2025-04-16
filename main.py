@@ -16,7 +16,7 @@ def main():
     map_height = 45
 
     tileset = tcod.tileset.load_tilesheet(
-        "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
+        "orao_8x8.png", 16, 16, tcod.tileset.CHARMAP_CP437
 
     )
 
