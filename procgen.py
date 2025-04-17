@@ -5,6 +5,7 @@ from typing import Tuple, Iterator, TYPE_CHECKING, List
 
 import tcod
 
+import entity_factory
 from game_map import GameMap
 import tile_type
 
@@ -17,6 +18,7 @@ class RegularRoom:
         self.y1 = y
         self.x2 = x + width
         self.y2 = y + height
+
 
     @property
     def center(self) ->Tuple[int, int]:
@@ -59,16 +61,33 @@ def hallway(
         yield x, y
 
 
+def place_entities(
+            room: RegularRoom, dungeon: GameMap, max_enemy: int,
+    ) -> None:
+        num_of_enemy = random.randint(0, max_enemy)
+
+        for i in range(num_of_enemy):
+            x = random.randint(room.x1 + 1, room.x2 - 1)
+            y = random.randint(room.y1 + 1, room.y2 - 1)
+
+            if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
+                if random.random() < 0.8:
+                    entity_factory.pikeman.spawn(dungeon, x, y)
+                else:
+                    entity_factory.longsword.spawn(dungeon, x, y)
+
+
 def generate_dungeon(
         max_rooms: int,
         room_min_size: int,
         room_max_size: int,
         map_width: int,
         map_height: int,
+        max_enemy_per_room: int,
         player: Entity,
 ) -> GameMap:
     """Generate a new dungeon map"""
-    dungeon = GameMap(map_width, map_height)
+    dungeon = GameMap(map_width, map_height, entities=[player])
 
     rooms: List[RegularRoom] = []
 
@@ -76,8 +95,8 @@ def generate_dungeon(
         room_width = random.randint(room_min_size, room_max_size)
         room_height = random.randint(room_min_size, room_max_size)
 
-        x = random.randint(0, dungeon.width - room_width - 3)
-        y = random.randint(0, dungeon.height - room_height - 3)
+        x = random.randint(3, dungeon.width - room_width - 1)
+        y = random.randint(3, dungeon.height - room_height - 1)
 
         # "Room" class makes rectangles easier to work with
         new_room = RegularRoom(x, y, room_width, room_height)
@@ -98,6 +117,8 @@ def generate_dungeon(
             # Dig out a tunnel between this room and then the previous one
             for x, y in hallway(rooms[-1].center, new_room.center):
                 dungeon.tiles[x, y] = tile_type.floor
+
+        place_entities(new_room, dungeon, max_enemy_per_room)
 
         # Finally, append the new room to the list
         rooms.append(new_room)
