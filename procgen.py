@@ -72,9 +72,10 @@ def place_entities(
 
             if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
                 if random.random() < 0.8:
-                    entity_factory.pikeman.spawn(dungeon, x, y)
+                    entity_factory.swordmen.spawn(dungeon, x, y)
                 else:
-                    entity_factory.longsword.spawn(dungeon, x, y)
+                    entity_factory.cultist.spawn(dungeon, x, y)
+
 
 
 def generate_dungeon(

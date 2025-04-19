@@ -11,22 +11,23 @@ from input_handler import EventHandle
 from procgen import generate_dungeon
 
 def main():
-    screen_width = 80
-    screen_height = 50
+    screen_width = 100
+    screen_height = 80
 
-    map_width = 80
-    map_height = 45
+    map_width = 100
+    map_height = 75
 
-    room_max_size = 12
+    room_max_size = 8
     room_min_size = 6
-    max_room = 90
+    max_room = 13
 
     max_enemy_per_room = 2
 
     tileset = tcod.tileset.load_tilesheet(
-        "BrogueFont3.png", 16, 16, tcod.tileset.CHARMAP_CP437
+        "Alloy_rougeplus_12x12.png", 16, 16, tcod.tileset.CHARMAP_CP437
 
     )
+    tcod.tileset.procedural_block_elements(tileset=tileset)
 
     event_handler = EventHandle()
 
