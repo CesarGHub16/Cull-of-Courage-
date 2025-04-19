@@ -7,15 +7,17 @@ import tcod
 
 from engine import Engine
 import entity_factory
-from input_handler import EventHandle
 from procgen import generate_dungeon
+
+import color
+
 
 def main():
     screen_width = 100
     screen_height = 80
 
     map_width = 100
-    map_height = 75
+    map_height = 65
 
     room_max_size = 8
     room_min_size = 6
@@ -24,26 +26,30 @@ def main():
     max_enemy_per_room = 2
 
     tileset = tcod.tileset.load_tilesheet(
-        "Alloy_rougeplus_12x12.png", 16, 16, tcod.tileset.CHARMAP_CP437
+        "Alloy_curses_12x12.png", 16, 16, tcod.tileset.CHARMAP_CP437
 
     )
     tcod.tileset.procedural_block_elements(tileset=tileset)
 
-    event_handler = EventHandle()
-
     player = copy.deepcopy(entity_factory.player)
 
-    game_map = generate_dungeon(
+    engine = Engine(player=player)
+
+    engine.game_map = generate_dungeon(
         max_rooms=max_room,
         room_min_size=room_min_size,
         room_max_size=room_max_size,
         map_width=map_width,
         map_height=map_height,
         max_enemy_per_room=max_enemy_per_room,
-        player=player,
+        engine=engine,
     )
 
-    engine = Engine(event_handle=event_handler, game_map=game_map, player=player)
+    engine.update_fov()
+
+    engine.message_log.add_message(
+        "Hello and welcome!"
+    )
 
     with tcod.context.new_terminal(
         screen_width,
@@ -54,11 +60,11 @@ def main():
     ) as context:
         root_console = tcod.console.Console(screen_width, screen_height, order="F")
         while True:
-            engine.render(console=root_console, context=context)
+            root_console.clear()
+            engine.event_handle.on_render(console=root_console)
+            context.present(root_console)
 
-            event = tcod.event.wait()
-
-            engine.handle_event(event)
+            engine.event_handle.handle_events(context)
 
 
 

@@ -43,12 +43,6 @@ floor = new_tile(
 wall = new_tile(
     walkable=False,
     transparent=False,
-    dark=(ord(chr(0x2588)), (12, 12, 12), (0, 0, 0)),
-    light=(ord(chr(0x2588)), (118, 118, 118), (0, 0, 0)),
-)
-vace = new_tile(
-    walkable=False,
-    transparent=False,
-    dark=(ord(chr(0x38)), (12, 12, 12), (0, 0, 0)),
-    light=(ord(chr(0x38)), (193, 156, 0), (0, 0, 0)),
+    dark=(ord(chr(0x23)), (12, 12, 12), (0, 0, 0)),
+    light=(ord(chr(0x23)), (118, 118, 118), (0, 0, 0)),
 )

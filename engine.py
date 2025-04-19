@@ -1,52 +1,57 @@
-from typing import Iterable, Any
+from __future__ import annotations
 
-from tcod.context import Context
+from typing import TYPE_CHECKING
+
 from tcod.console import Console
 from tcod.map import compute_fov
 
-from entity import Entity
-from game_map import GameMap
-from input_handler import EventHandle
+import entity_factory
+from input_handler import MainGameEventHandler
+from message_log import MessageLog
+from render_function import render_bar, render_names_at_mouse_pos
+
+if TYPE_CHECKING:
+    from entity import Actor
+    from game_map import GameMap
+    from input_handler import EventHandle
 
 """
 ENGINE TO HANDLE DRAWING
 """
 
 class Engine:
-    def __init__(self, event_handle: EventHandle, game_map: GameMap, player: Entity):
-        self.event_handle = event_handle
+    game_map: GameMap
+
+
+    def __init__(self, player: Actor):
+        self.event_handle: EventHandle = MainGameEventHandler(self)
+        self.message_log = MessageLog()
+        self.mouse_pos = (0, 0)
         self.player = player
-        self.game_map = game_map
-        self.update_fov()
 
-    def handle_enemy(self) -> None:
-        for entity in self.game_map.entities - {self.player}:
-            print("Is it my turn yet.")
-
-    def handle_event(self, events: Iterable[Any]) -> None:
-        for event in events:
-            action = self.event_handle.dispatch(event)
-
-            if action is None:
-                continue
-
-            action.perform(self, self.player)
-         #   self.handle_enemy_turns()
-
-            self.update_fov() # Update FOV before player next action
+    def handle_enemy_turn(self) -> None:
+        for entity in set(self.game_map.actors) - {self.player}:
+            if entity.ai:
+                entity.ai.perform()
 
     def update_fov(self) -> None:
-        self.game_map.visable[:] = compute_fov(
+        self.game_map.visible[:] = compute_fov(
             self.game_map.tiles["transparent"],
             (self.player.x, self.player.y),
             radius=6,
         )
-        self.game_map.explored |= self.game_map.visable
+        self.game_map.explored |= self.game_map.visible
 
-    def render(self, console: Console, context: Context) -> None:
+    def render(self, console: Console) -> None:
         self.game_map.render(console)
 
+        self.message_log.render(console=console, x=31, y=26, width=40, height=45)
 
-        context.present(console)
+        render_bar(
+            console=console,
+            current_value=self.player.fighter.HP,
+            max_value=self.player.fighter.MAX_HP,
+            total_width=20
+        )
 
-        console.clear()
+        render_names_at_mouse_pos(console=console, x=31, y=10, engine=self)
